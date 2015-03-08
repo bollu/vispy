@@ -2,12 +2,12 @@
 import numpy as np
 
 from vispy.util.transforms import perspective
-from  vispy.util import transforms
+from vispy.util import transforms
 from vispy import gloo
 from vispy import app
 from vispy import io
 
-from galaxy_specrend import *
+import galaxy_specrend
 from galaxy_simulation import Galaxy
 
 VERT_SHADER = """
@@ -35,7 +35,7 @@ attribute float a_brightness;
 
 varying vec3 v_color;
 void main (void)
-{   
+{
     gl_Position = u_projection * u_view * u_model * vec4(a_position, 0.0,1.0);
 
     //find base color according to physics from our sampler
@@ -75,12 +75,12 @@ void main()
 }
 """
 
-galaxy = Galaxy(35000)
+galaxy = Galaxy(10000)
 galaxy.reset(13000, 4000, 0.0004, 0.90, 0.90, 0.5, 200, 300)
 # coldest and hottest temperatures of out galaxy
-t0, t1 = 800.0, 10000.0
+t0, t1 = 200.0, 10000.0
 # total number of discrete colors between t0 and t1
-n = 156
+n = 1000
 dt = (t1 - t0) / n
 
 # maps [0, n) -> colors
@@ -90,12 +90,13 @@ dt = (t1 - t0) / n
 colors = np.zeros(n, dtype=(np.float32, 3))
 for i in range(n):
     temperature = t0 + i * dt
-    x, y, z = spectrum_to_xyz(bb_spectrum, temperature)
-    r, g, b = xyz_to_rgb(SMPTEsystem, x, y, z)
+    x, y, z = galaxy_specrend.spectrum_to_xyz(galaxy_specrend.bb_spectrum,
+                                              temperature)
+    r, g, b = galaxy_specrend.xyz_to_rgb(galaxy_specrend.SMPTEsystem, x, y, z)
     r = min((max(r, 0), 1))
     g = min((max(g, 0), 1))
     b = min((max(b, 0), 1))
-    colors[i] = norm_rgb(r, g, b)
+    colors[i] = galaxy_specrend.norm_rgb(r, g, b)
 
 
 # load the PNG that we use to blend the star with
@@ -141,7 +142,7 @@ class Canvas(app.Canvas):
         self.program = gloo.Program(VERT_SHADER, FRAG_SHADER,
                                     count=len(galaxy))
 
-        #load the star texture
+        # load the star texture
         self.texture = gloo.Texture2D(load_galaxy_star_image(),
                                       interpolation='linear')
         self.program['u_texture'] = self.texture
@@ -192,7 +193,7 @@ class Canvas(app.Canvas):
 
     def on_draw(self, event):
         # update the galaxy
-        galaxy.update(100000)  # in years !
+        galaxy.update(50000)  # in years !
 
         # recreate the numpy array that will be sent as the VBO data
         data = self.__create_galaxy_vertex_data()
