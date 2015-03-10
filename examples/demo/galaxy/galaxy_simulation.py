@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# vispy: testskip
+
 # -----------------------------------------------------------------------------
 #  A Galaxy Simulator based on the density wave theory
 #  (c) 2012 Ingo Berg

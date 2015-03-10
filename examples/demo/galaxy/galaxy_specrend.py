@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# vispy: testskip
+
 """
                 Colour Rendering of Spectra
 
