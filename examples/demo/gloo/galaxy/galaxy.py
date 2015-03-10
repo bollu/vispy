@@ -102,7 +102,11 @@ for i in range(n):
 # load the PNG that we use to blend the star with
 # to provide a circular look to each star.
 def load_galaxy_star_image():
-    raw_image = io.read_png("star-particle.png")
+    from vispy.io import load_data_file
+
+    fname = load_data_file('galaxy/star-particle.png')
+    raw_image = io.read_png(fname)
+
     return raw_image
 
 
