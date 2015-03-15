@@ -69,7 +69,7 @@ class LinePlotVisual(Visual):
                                   args[1][:, np.newaxis]], axis=1)
         # if args are empty, don't modify position
         elif len(args) == 0:
-            pos = self.pos
+            pos = self._line.pos
 
             # if both args and keywords are zero, then there is no
             # point in calling this function.
