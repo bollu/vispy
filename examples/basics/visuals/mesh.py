@@ -25,7 +25,7 @@ class Canvas(app.Canvas):
         mdata = create_sphere(20, 40, 1.0)
 
         # Mesh with pre-indexed vertices, uniform color
-        self.meshes.append(visuals.MeshVisual(meshdata=mdata, color='r'))
+        self.meshes.append(visuals.MeshVisual(meshdata=mdata, color='b'))
 
         # Mesh with pre-indexed vertices, per-face color
         #   Because vertices are pre-indexed, we get a different color
@@ -53,7 +53,7 @@ class Canvas(app.Canvas):
         vcolor[:, 2] = np.linspace(0, 1, nv)
         self.meshes.append(visuals.MeshVisual(verts, faces, vcolor))
         self.meshes.append(visuals.MeshVisual(verts, faces, vcolor,
-                                              shading=' flat'))
+                                              shading='flat'))
         self.meshes.append(visuals.MeshVisual(verts, faces, vcolor,
                                               shading='smooth'))
 
@@ -66,9 +66,7 @@ class Canvas(app.Canvas):
             transform = ChainTransform([STTransform(translate=(x, y),
                                                     scale=(s, s, 1)),
                                         self.rotation])
-            tr_sys = visuals.transforms.TransformSystem(self)
-            tr_sys.visual_to_document = transform
-            mesh.tr_sys = tr_sys
+            mesh.transform = transform
 
         self.show()
 
@@ -76,14 +74,18 @@ class Canvas(app.Canvas):
         self.timer.start(0.016)
 
     def rotate(self, event):
-        self.rotation.rotate(1, (0, 1, 0))
+        # rotate with an irrational amount over each axis so there is no
+        # periodicity
+        self.rotation.rotate(0.6, (2 ** 0.5, 3 ** 0.5, 7 ** 0.5))
         self.update()
 
     def on_draw(self, ev):
+        vp = (0, 0, self.physical_size[0], self.physical_size[1])
         gloo.set_viewport(0, 0, *self.physical_size)
         gloo.clear(color='black', depth=True)
         for mesh in self.meshes:
-            mesh._prepare_transforms(mesh)
+            mesh.transforms.configure(canvas=self, viewport=vp)
+            # mesh._prepare_transforms(mesh)
             mesh.draw()
 
 
